@@ -9,6 +9,7 @@ import styles from './styles';
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [contacts, setContacts] = useState([]);
+  const [inMemoryContacts, setInMemoryContacts] = useState([]);
 
   const loadContact = async () => {
     const { status } = await Contacts.requestPermissionsAsync();
@@ -21,6 +22,18 @@ const App = () => {
       fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Emails]
     });
     setContacts(data);
+    setInMemoryContacts(data);
+  }
+
+  const searchContacts = (value) => {
+    const filterContacts = inMemoryContacts.filter(contact => {
+      let contactLowercase = (`${contact.firstName} ${contact.lastName}`).toLowerCase();
+      let searchTermLowercase = value.toLowerCase();
+
+      return contactLowercase.indexOf(searchTermLowercase) > -1;
+    });
+
+    setContacts(filterContacts);
   }
 
   useEffect(() => {
@@ -43,7 +56,12 @@ const App = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} />
-      <TextInput placeholder='Search' placeholderTextColor='#dddddd' style={styles.textInput} />
+      <TextInput
+        placeholder='Search'
+        placeholderTextColor='#dddddd'
+        style={styles.textInput}
+        onChangeText={(value) => searchContacts(value)}
+      />
       <View style={styles.contactContainer}>
         {loading ?
           (<View style={styles.loading}>
